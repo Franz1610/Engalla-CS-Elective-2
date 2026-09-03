@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_application_1/main.dart';
+import 'package:flutter_application_1/app.dart';
 
 void main() {
   testWidgets('renders RetroByte home screen', (WidgetTester tester) async {
