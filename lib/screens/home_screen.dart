@@ -2,62 +2,85 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/sample_products.dart';
+import '../widgets/cart_badge_button.dart';
 import '../widgets/product_card.dart';
 
+/// [HomeScreen] is a [StatelessWidget] because its catalog presentation
+/// is immutable once built. Dynamic adaptations (theme switching, responsiveness)
+/// are handled declaratively via [Theme.of] and [LayoutBuilder].
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
     super.key,
-    required this.isDarkMode,
     required this.onToggleTheme,
   });
 
-  final bool isDarkMode;
   final VoidCallback onToggleTheme;
 
   int _crossAxisCountForWidth(double width) {
     if (width >= 1000) {
       return 4;
     }
-    if (width >= 700) {
+    if (width >= 650) {
       return 3;
     }
     return 2;
   }
 
+  double _childAspectRatioForWidth(double width) {
+    if (width >= 1000) {
+      return 0.85;
+    }
+    if (width >= 650) {
+      return 0.80;
+    }
+    return 0.75;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('RetroByte'),
+        title: Text(
+          'RetroByte',
+          style: theme.appBarTheme.titleTextStyle?.copyWith(
+            fontFamily: 'monospace',
+            letterSpacing: 1.5,
+          ),
+        ),
         actions: <Widget>[
           IconButton(
             onPressed: onToggleTheme,
-            tooltip: 'Toggle theme',
-            icon: Icon(isDarkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
+            tooltip: isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+            icon: Icon(
+              isDarkMode ? Icons.wb_sunny_outlined : Icons.nightlight_round_outlined,
+            ),
           ),
+          const CartBadgeButton(),
+          const SizedBox(width: 4),
         ],
       ),
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
           final crossAxisCount = _crossAxisCountForWidth(constraints.maxWidth);
+          final aspectRatio = _childAspectRatioForWidth(constraints.maxWidth);
 
           return GridView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: sampleProducts.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: crossAxisCount,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: crossAxisCount >= 3 ? 0.78 : 0.72,
+              crossAxisSpacing: 14,
+              mainAxisSpacing: 14,
+              childAspectRatio: aspectRatio,
             ),
             itemBuilder: (BuildContext context, int index) {
               final product = sampleProducts[index];
               return ProductCard(
                 product: product,
-                onTap: () => context.go('/product/${product.id}'),
-                accentColor: colorScheme.primary,
+                onTap: () => context.push('/product/${product.id}'),
               );
             },
           );

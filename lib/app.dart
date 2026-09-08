@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'data/cart_state.dart';
+import 'screens/cart_screen.dart';
+import 'screens/checkout_confirmation_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/product_details_screen.dart';
 import 'theme/retrobyte_theme.dart';
@@ -14,6 +17,7 @@ class RetroByteApp extends StatefulWidget {
 
 class _RetroByteAppState extends State<RetroByteApp> {
   ThemeMode _themeMode = ThemeMode.light;
+  late final CartState _cartState = CartState();
 
   late final GoRouter _router = GoRouter(
     initialLocation: '/',
@@ -23,7 +27,6 @@ class _RetroByteAppState extends State<RetroByteApp> {
         name: 'home',
         builder: (BuildContext context, GoRouterState state) {
           return HomeScreen(
-            isDarkMode: _themeMode == ThemeMode.dark,
             onToggleTheme: _toggleThemeMode,
           );
         },
@@ -34,6 +37,20 @@ class _RetroByteAppState extends State<RetroByteApp> {
             builder: (BuildContext context, GoRouterState state) {
               final productId = state.pathParameters['id'] ?? 'unknown';
               return ProductDetailsScreen(productId: productId);
+            },
+          ),
+          GoRoute(
+            path: 'cart',
+            name: 'cart',
+            builder: (BuildContext context, GoRouterState state) {
+              return const CartScreen();
+            },
+          ),
+          GoRoute(
+            path: 'checkout',
+            name: 'checkout',
+            builder: (BuildContext context, GoRouterState state) {
+              return const CheckoutConfirmationScreen();
             },
           ),
         ],
@@ -48,14 +65,23 @@ class _RetroByteAppState extends State<RetroByteApp> {
   }
 
   @override
+  void dispose() {
+    _cartState.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'RetroByte',
-      themeMode: _themeMode,
-      theme: RetroByteTheme.light(),
-      darkTheme: RetroByteTheme.dark(),
-      routerConfig: _router,
+    return CartScope(
+      cartState: _cartState,
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'RetroByte',
+        themeMode: _themeMode,
+        theme: RetroByteTheme.light(),
+        darkTheme: RetroByteTheme.dark(),
+        routerConfig: _router,
+      ),
     );
   }
 }
