@@ -1,7 +1,23 @@
 import 'package:flutter/material.dart';
 
-import 'app.dart';
+import 'screens/pokemon_list_screen.dart';
 
 void main() {
-  runApp(const RetroByteApp());
+  runApp(const PokedexApp());
+}
+
+class PokedexApp extends StatelessWidget {
+  const PokedexApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Pokedex',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+        useMaterial3: true,
+      ),
+      home: const PokemonListScreen(),
+    );
+  }
 }
