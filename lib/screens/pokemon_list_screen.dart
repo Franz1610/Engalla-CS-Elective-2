@@ -1,63 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../models/pokemon.dart';
-import '../services/pokemon_service.dart';
+import '../providers/pokemon_provider.dart';
+import 'pokemon_detail_screen.dart';
 import '../widgets/pokemon_card.dart';
 
-class PokemonListScreen extends StatefulWidget {
+class PokemonListScreen extends StatelessWidget {
   const PokemonListScreen({super.key});
-
-  @override
-  State<PokemonListScreen> createState() => _PokemonListScreenState();
-}
-
-class _PokemonListScreenState extends State<PokemonListScreen> {
-  late final PokemonService _pokemonService;
-  late Future<List<Pokemon>> _pokemonFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _pokemonService = PokemonService();
-    _loadPokemon();
-  }
-
-  void _loadPokemon() {
-    _pokemonFuture = _pokemonService.fetchPokemon();
-  }
-
-  void _retry() {
-    setState(_loadPokemon);
-  }
-
-  @override
-  void dispose() {
-    _pokemonService.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pokédex'), centerTitle: true),
-      body: FutureBuilder<List<Pokemon>>(
-        future: _pokemonFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      appBar: AppBar(
+        title: const Text('Pokédex'),
+        centerTitle: true,
+        actions: [
+          Consumer<PokemonProvider>(
+            builder: (context, provider, child) {
+              return IconButton(
+                tooltip: 'Refresh Pokémon',
+                onPressed: provider.isLoading ? null : provider.fetchPokemon,
+                icon: const Icon(Icons.refresh),
+              );
+            },
+          ),
+        ],
+      ),
+      body: Consumer<PokemonProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (snapshot.hasError) {
+          if (provider.errorMessage != null) {
             return _MessageState(
               icon: Icons.cloud_off_outlined,
-              message: 'Unable to load Pokémon.',
+              message: provider.errorMessage!,
               actionLabel: 'Try again',
-              onAction: _retry,
+              onAction: provider.fetchPokemon,
             );
           }
 
-          final pokemon = snapshot.data ?? [];
-          if (pokemon.isEmpty) {
+          if (provider.pokemon.isEmpty) {
             return const _MessageState(
               icon: Icons.catching_pokemon,
               message: 'No Pokémon found.',
@@ -72,9 +56,19 @@ class _PokemonListScreenState extends State<PokemonListScreen> {
               crossAxisSpacing: 16,
               childAspectRatio: 0.9,
             ),
-            itemCount: pokemon.length,
+            itemCount: provider.pokemon.length,
             itemBuilder: (context, index) {
-              return PokemonCard(pokemon: pokemon[index]);
+              final pokemon = provider.pokemon[index];
+              return PokemonCard(
+                pokemon: pokemon,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => PokemonDetailScreen(pokemonId: pokemon.id),
+                    ),
+                  );
+                },
+              );
             },
           );
         },
