@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/pokemon_provider.dart';
+import '../widgets/favorites_panel.dart';
 
 class PokemonDetailScreen extends ConsumerStatefulWidget {
   const PokemonDetailScreen({required this.pokemonId, super.key});
@@ -42,6 +43,15 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
       appBar: AppBar(
         title: Text(pokemon.name.toUpperCase()),
         actions: [
+          IconButton(
+            tooltip: 'Favorites',
+            onPressed: () => _showFavorites(context),
+            icon: Badge(
+              label: Text('${state.favoritePokemon.length}'),
+              isLabelVisible: state.favoritePokemon.isNotEmpty,
+              child: const Icon(Icons.favorite_border),
+            ),
+          ),
           IconButton(
             tooltip: isFavorite ? 'Remove from favorites' : 'Add to favorites',
             onPressed: () =>
@@ -125,6 +135,24 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showFavorites(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (_) => FavoritesPanel(
+        onOpen: (id) {
+          Navigator.pop(context);
+          if (id != widget.pokemonId) {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => PokemonDetailScreen(pokemonId: id),
+              ),
+            );
+          }
+        },
       ),
     );
   }
