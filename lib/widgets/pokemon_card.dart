@@ -63,6 +63,10 @@ class PokemonCard extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
+                  Text(
+                    '\$${pokemon.price.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
                 ],
               ),
             ),

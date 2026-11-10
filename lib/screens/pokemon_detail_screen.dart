@@ -85,6 +85,11 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
               ),
               const SizedBox(height: 8),
               Text('Types: ${pokemon.types.join(', ').toUpperCase()}'),
+              const SizedBox(height: 8),
+              Text(
+                'Price: \$${pokemon.price.toStringAsFixed(2)}',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: 24),
               TextField(
                 controller: _nicknameController,

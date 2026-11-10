@@ -1,57 +1,47 @@
-import 'dart:convert';
-
-import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/pokemon.dart';
 
+class PokemonPage {
+  const PokemonPage({required this.pokemon, required this.totalCount});
+
+  final List<Pokemon> pokemon;
+  final int totalCount;
+}
+
 class PokemonService {
-  PokemonService({http.Client? client}) : _client = client ?? http.Client();
+  PokemonService({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
 
-  static const _pokemonLimit = 30;
-  static final _endpoint = Uri.parse(
-    'https://pokeapi.co/api/v2/pokemon?limit=$_pokemonLimit&offset=0',
-  );
+  final SupabaseClient _client;
 
-  final http.Client _client;
+  Future<PokemonPage> fetchPokemon({
+    required double minimumPrice,
+    required double maximumPrice,
+    required int page,
+    int pageSize = 8,
+  }) async {
+    final start = page * pageSize;
+    final end = start + pageSize - 1;
+    final rows = await _client
+        .from('products')
+        .select('*')
+        .gte('price', minimumPrice)
+        .lte('price', maximumPrice)
+        .order('id')
+        .range(start, end);
+    final countResponse = await _client
+        .from('products')
+        .select('*')
+        .gte('price', minimumPrice)
+        .lte('price', maximumPrice)
+        .count(CountOption.exact);
 
-  Future<List<Pokemon>> fetchPokemon() async {
-    final response = await _client.get(_endpoint);
-
-    if (response.statusCode != 200) {
-      throw Exception('Unable to load Pokemon right now.');
-    }
-
-    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-    final results = decoded['results'] as List<dynamic>? ?? [];
-
-    return Future.wait(
-      results.take(_pokemonLimit).map((item) async {
-        final data = item as Map<String, dynamic>;
-        final detailsResponse = await _client.get(
-          Uri.parse(data['url'] as String),
-        );
-
-        if (detailsResponse.statusCode != 200) {
-          throw Exception('Unable to load Pokémon details.');
-        }
-
-        final details =
-            jsonDecode(detailsResponse.body) as Map<String, dynamic>;
-        final types = (details['types'] as List<dynamic>)
-            .map(
-              (entry) =>
-                  (entry as Map<String, dynamic>)['type']
-                      as Map<String, dynamic>,
-            )
-            .map((type) => type['name'] as String)
-            .toList();
-
-        return Pokemon.fromJson(data, types: types);
-      }),
+    return PokemonPage(
+      pokemon: rows.map(Pokemon.fromProductMap).toList(),
+      totalCount: countResponse.count,
     );
   }
 
-  void dispose() {
-    _client.close();
-  }
+  void dispose() {}
 }

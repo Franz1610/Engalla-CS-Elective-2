@@ -1,17 +1,33 @@
-# flutter_application_1
+# Supabase Pokedex
 
-A new Flutter project.
+This project keeps the midterm Pokedex UI and state-management features while
+loading its catalog from Supabase. It adds a price range filter and frontend
+pagination with eight Pokémon/products per page.
 
-## Getting Started
+## Supabase setup
 
-This project is a starting point for a Flutter application.
+Create a readable `products` table with these columns:
 
-A few resources to get you started if this is your first Flutter project:
+| Column | Type |
+| --- | --- |
+| `id` | `bigint` (primary key) |
+| `name` | `text` |
+| `price` | `numeric` |
+| `image_url` | `text` (nullable) |
+| `types` | `jsonb` (nullable) |
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+The app also accepts the existing midterm Pokedex columns and displays a
+PokeAPI image when `image_url` is empty. Enable a SELECT policy for the
+`anon`/`authenticated` roles.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference
+Run the app with your Supabase project URL and publishable key:
+
+```text
+flutter run \
+  --dart-define=SUPABASE_URL=https://your-project.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=your-publishable-key
+```
+
+The Supabase query applies `gte`/`lte` price filters and `.range(...)`
+pagination. The Riverpod provider resets to page one when the slider changes
+and uses the exact filtered count to enable or disable page controls.

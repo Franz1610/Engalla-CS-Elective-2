@@ -48,7 +48,16 @@ class _PokemonListScreenState extends ConsumerState<PokemonListScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: notifier.fetchPokemon,
-        child: _buildBody(context, state),
+        child: Column(
+          children: [
+            _PriceFilter(state: state),
+            Expanded(child: _buildBody(context, state)),
+            _PaginationControls(
+              state: state,
+              onPageChanged: notifier.goToPage,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -189,6 +198,90 @@ class _TypeFilter extends ConsumerWidget {
     );
   }
 }
+
+  class _PriceFilter extends ConsumerWidget {
+    const _PriceFilter({required this.state});
+
+    final PokemonState state;
+
+    @override
+    Widget build(BuildContext context, WidgetRef ref) {
+      return Card(
+        margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Price: \$${state.minimumPrice.toStringAsFixed(0)} - '
+                  '\$${state.maximumPrice.toStringAsFixed(0)}',
+                ),
+              ),
+              RangeSlider(
+                values: RangeValues(state.minimumPrice, state.maximumPrice),
+                min: minimumProductPrice,
+                max: maximumProductPrice,
+                divisions: 100,
+                labels: RangeLabels(
+                  '\$${state.minimumPrice.toStringAsFixed(0)}',
+                  '\$${state.maximumPrice.toStringAsFixed(0)}',
+                ),
+                onChanged: state.isLoading
+                    ? null
+                    : (values) => ref.read(pokemonProvider.notifier).setPriceRange(
+                          values.start,
+                          values.end,
+                        ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
+  class _PaginationControls extends StatelessWidget {
+    const _PaginationControls({
+      required this.state,
+      required this.onPageChanged,
+    });
+
+    final PokemonState state;
+    final ValueChanged<int> onPageChanged;
+
+    @override
+    Widget build(BuildContext context) {
+      final pageCount = state.totalCount == 0
+          ? 0
+          : (state.totalCount + pokemonPageSize - 1) ~/ pokemonPageSize;
+      return SafeArea(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              tooltip: 'Previous page',
+              onPressed: state.isLoading || !state.canGoPrevious
+                  ? null
+                  : () => onPageChanged(state.page - 1),
+              icon: const Icon(Icons.chevron_left),
+            ),
+            Text(pageCount == 0
+                ? 'No pages'
+                : 'Page ${state.page + 1} of $pageCount'),
+            IconButton(
+              tooltip: 'Next page',
+              onPressed: state.isLoading || !state.canGoNext
+                  ? null
+                  : () => onPageChanged(state.page + 1),
+              icon: const Icon(Icons.chevron_right),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
 class _MessageState extends StatelessWidget {
   const _MessageState({
