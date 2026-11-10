@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../providers/pokemon_provider.dart';
+import '../providers/product_provider.dart';
 
 class FavoritesPanel extends ConsumerWidget {
   const FavoritesPanel({required this.onOpen, super.key});
@@ -10,8 +10,8 @@ class FavoritesPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(pokemonProvider);
-    final notifier = ref.read(pokemonProvider.notifier);
+    final state = ref.watch(productProvider);
+    final notifier = ref.read(productProvider.notifier);
 
     return SafeArea(
       child: Column(
@@ -20,16 +20,16 @@ class FavoritesPanel extends ConsumerWidget {
           ListTile(
             title: const Text('Saved products'),
             trailing: IconButton(
-              onPressed: notifier.toggleFavoritesPanel,
+              onPressed: notifier.toggleSavedPanel,
               icon: Icon(
-                state.isFavoritesPanelExpanded
+                state.isSavedPanelExpanded
                     ? Icons.expand_less
                     : Icons.expand_more,
               ),
             ),
           ),
-          if (state.isFavoritesPanelExpanded)
-            if (state.favoritePokemon.isEmpty)
+          if (state.isSavedPanelExpanded)
+            if (state.savedProducts.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(24),
                 child: Text('No products have been saved yet.'),
@@ -39,15 +39,17 @@ class FavoritesPanel extends ConsumerWidget {
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    ...state.favoritePokemon.map(
-                      (pokemon) => ListTile(
-                        leading: Image.network(pokemon.imageUrl, width: 48),
-                        title: Text(pokemon.name),
-                        subtitle: Text(state.nicknames[pokemon.id] ?? ''),
-                        onTap: () => onOpen(pokemon.id),
+                    ...state.savedProducts.map(
+                      (product) => ListTile(
+                        leading: product.imageUrl == null
+                            ? const Icon(Icons.shopping_bag_outlined)
+                            : Image.network(product.imageUrl!, width: 48),
+                        title: Text(product.name),
+                        subtitle: Text(state.notes[product.id] ?? ''),
+                        onTap: () => onOpen(product.id),
                         trailing: IconButton(
                           onPressed: () =>
-                              notifier.toggleFavorite(pokemon.id),
+                              notifier.toggleSaved(product.id),
                           icon: const Icon(Icons.favorite, color: Colors.red),
                         ),
                       ),

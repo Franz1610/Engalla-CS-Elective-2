@@ -12,7 +12,7 @@ import 'package:flutter_application_1/main.dart';
 
 void main() {
   testWidgets('renders the shop home screen', (WidgetTester tester) async {
-    await tester.pumpWidget(const ProviderScope(child: PokedexApp()));
+    await tester.pumpWidget(const ProviderScope(child: ShopApp()));
 
     expect(find.text('Shop'), findsOneWidget);
   });

@@ -12,20 +12,25 @@ Create a readable `products` table with these columns:
 | --- | --- |
 | `id` | `bigint` (primary key) |
 | `name` | `text` |
+| `description` | `text` (nullable) |
 | `price` | `numeric` |
+| `stock` | `integer` |
 | `image_url` | `text` (nullable) |
-| `types` | `jsonb` (nullable) |
+| `category_id` | `bigint` |
 
+The `products` table follows the schema used by the
+[`backend` branch](https://github.com/louith/cs-elective-2-2026/tree/backend).
 Enable a SELECT policy for the `anon`/`authenticated` roles. Products without
 an `image_url` display a generic product image placeholder.
 
-Run the app with your Supabase project URL and publishable key:
+Put your local credentials in `.env`:
 
-```text
-flutter run \
-  --dart-define=SUPABASE_URL=https://your-project.supabase.co \
-  --dart-define=SUPABASE_ANON_KEY=your-publishable-key
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-publishable-key
 ```
+
+Run the app with `flutter run -d chrome`.
 
 The Supabase query applies `gte`/`lte` price filters and `.range(...)`
 pagination. The Riverpod provider resets to page one when the slider changes

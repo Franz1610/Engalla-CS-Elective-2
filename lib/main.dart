@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'screens/pokemon_list_screen.dart';
+import 'screens/shop_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,13 +24,13 @@ Future<void> main() async {
   }
   runApp(
     ProviderScope(
-      child: PokedexApp(isConfigured: isConfigured),
+      child: ShopApp(isConfigured: isConfigured),
     ),
   );
 }
 
-class PokedexApp extends StatelessWidget {
-  const PokedexApp({this.isConfigured = true, super.key});
+class ShopApp extends StatelessWidget {
+  const ShopApp({this.isConfigured = true, super.key});
 
   final bool isConfigured;
 
@@ -44,7 +44,7 @@ class PokedexApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: isConfigured
-          ? const PokemonListScreen()
+          ? const ShopScreen()
           : const _ConfigurationScreen(),
     );
   }

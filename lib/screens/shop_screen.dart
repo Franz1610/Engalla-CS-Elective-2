@@ -1,29 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../providers/pokemon_provider.dart';
-import '../widgets/pokemon_card.dart';
+import '../providers/product_provider.dart';
+import '../widgets/product_card.dart';
 import '../widgets/favorites_panel.dart';
-import 'pokemon_detail_screen.dart';
+import 'product_detail_screen.dart';
 
-class PokemonListScreen extends ConsumerStatefulWidget {
-  const PokemonListScreen({super.key});
+class ShopScreen extends ConsumerStatefulWidget {
+  const ShopScreen({super.key});
 
   @override
-  ConsumerState<PokemonListScreen> createState() => _PokemonListScreenState();
+  ConsumerState<ShopScreen> createState() => _ShopScreenState();
 }
 
-class _PokemonListScreenState extends ConsumerState<PokemonListScreen> {
+class _ShopScreenState extends ConsumerState<ShopScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(pokemonProvider.notifier).fetchPokemon());
+    Future.microtask(() => ref.read(productProvider.notifier).fetchProducts());
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(pokemonProvider);
-    final notifier = ref.read(pokemonProvider.notifier);
+    final state = ref.watch(productProvider);
+    final notifier = ref.read(productProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
@@ -32,22 +32,22 @@ class _PokemonListScreenState extends ConsumerState<PokemonListScreen> {
         actions: [
           IconButton(
             tooltip: 'Saved products',
-            onPressed: () => _showFavorites(context),
+            onPressed: () => _showSavedProducts(context),
             icon: Badge(
-              label: Text('${state.favoritePokemon.length}'),
-              isLabelVisible: state.favoritePokemon.isNotEmpty,
+              label: Text('${state.savedProducts.length}'),
+              isLabelVisible: state.savedProducts.isNotEmpty,
               child: const Icon(Icons.favorite_border),
             ),
           ),
           IconButton(
             tooltip: 'Refresh products',
-            onPressed: state.isLoading ? null : notifier.fetchPokemon,
+            onPressed: state.isLoading ? null : notifier.fetchProducts,
             icon: const Icon(Icons.refresh),
           ),
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: notifier.fetchPokemon,
+        onRefresh: notifier.fetchProducts,
         child: Column(
           children: [
             _PriceFilter(state: state),
@@ -62,7 +62,7 @@ class _PokemonListScreenState extends ConsumerState<PokemonListScreen> {
     );
   }
 
-  Widget _buildBody(BuildContext context, PokemonState state) {
+  Widget _buildBody(BuildContext context, ProductState state) {
     if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -76,20 +76,20 @@ class _PokemonListScreenState extends ConsumerState<PokemonListScreen> {
               icon: Icons.cloud_off_outlined,
               message: state.errorMessage!,
               actionLabel: 'Try again',
-              onAction: ref.read(pokemonProvider.notifier).fetchPokemon,
+              onAction: ref.read(productProvider.notifier).fetchProducts,
             ),
           ),
         ],
       );
     }
 
-    if (state.pokemon.isEmpty) {
+    if (state.products.isEmpty) {
       return ListView(
         children: [
           SizedBox(
             height: MediaQuery.sizeOf(context).height * 0.7,
             child: const _MessageState(
-              icon: Icons.catching_pokemon,
+              icon: Icons.storefront_outlined,
               message: 'No products found.',
             ),
           ),
@@ -99,30 +99,20 @@ class _PokemonListScreenState extends ConsumerState<PokemonListScreen> {
 
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(child: _TypeFilter(state: state)),
-        if (state.filteredPokemon.isEmpty)
-          const SliverFillRemaining(
-            child: _MessageState(
-              icon: Icons.filter_alt_off,
-              message: 'No products match this category.',
-            ),
-          )
-        else
-          SliverPadding(
+        SliverPadding(
             padding: const EdgeInsets.all(16),
             sliver: SliverGrid(
               delegate: SliverChildBuilderDelegate((context, index) {
-                final pokemon = state.filteredPokemon[index];
-                return PokemonCard(
-                  pokemon: pokemon,
+                final product = state.products[index];
+                return ProductCard(
+                  product: product,
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
-                      builder: (_) =>
-                          PokemonDetailScreen(pokemonId: pokemon.id),
+                      builder: (_) => ProductDetailScreen(productId: product.id),
                     ),
                   ),
                 );
-              }, childCount: state.filteredPokemon.length),
+              }, childCount: state.products.length),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 220,
                 mainAxisSpacing: 16,
@@ -135,7 +125,7 @@ class _PokemonListScreenState extends ConsumerState<PokemonListScreen> {
     );
   }
 
-  void _showFavorites(BuildContext context) {
+  void _showSavedProducts(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
       builder: (_) => FavoritesPanel(
@@ -143,7 +133,7 @@ class _PokemonListScreenState extends ConsumerState<PokemonListScreen> {
           Navigator.pop(context);
           Navigator.of(this.context).push(
             MaterialPageRoute<void>(
-              builder: (_) => PokemonDetailScreen(pokemonId: id),
+              builder: (_) => ProductDetailScreen(productId: id),
             ),
           );
         },
@@ -152,57 +142,10 @@ class _PokemonListScreenState extends ConsumerState<PokemonListScreen> {
   }
 }
 
-class _TypeFilter extends ConsumerWidget {
-  const _TypeFilter({required this.state});
-
-  final PokemonState state;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      child: Row(
-        children: [
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              key: ValueKey(state.selectedType),
-              initialValue: state.selectedType,
-              decoration: const InputDecoration(
-                labelText: 'Filter by category',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                const DropdownMenuItem<String>(
-                  value: null,
-                  child: Text('All categories'),
-                ),
-                ...state.availableTypes.map(
-                  (type) => DropdownMenuItem<String>(
-                    value: type,
-                    child: Text(type.toUpperCase()),
-                  ),
-                ),
-              ],
-              onChanged: ref.read(pokemonProvider.notifier).setTypeFilter,
-            ),
-          ),
-          if (state.selectedType != null)
-            IconButton(
-              tooltip: 'Clear filter',
-              onPressed: () =>
-                  ref.read(pokemonProvider.notifier).setTypeFilter(null),
-              icon: const Icon(Icons.clear),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
   class _PriceFilter extends ConsumerWidget {
     const _PriceFilter({required this.state});
 
-    final PokemonState state;
+    final ProductState state;
 
     @override
     Widget build(BuildContext context, WidgetRef ref) {
@@ -230,7 +173,7 @@ class _TypeFilter extends ConsumerWidget {
                 ),
                 onChanged: state.isLoading
                     ? null
-                    : (values) => ref.read(pokemonProvider.notifier).setPriceRange(
+                    : (values) => ref.read(productProvider.notifier).setPriceRange(
                           values.start,
                           values.end,
                         ),
@@ -248,14 +191,14 @@ class _TypeFilter extends ConsumerWidget {
       required this.onPageChanged,
     });
 
-    final PokemonState state;
+    final ProductState state;
     final ValueChanged<int> onPageChanged;
 
     @override
     Widget build(BuildContext context) {
       final pageCount = state.totalCount == 0
           ? 0
-          : (state.totalCount + pokemonPageSize - 1) ~/ pokemonPageSize;
+          : (state.totalCount + productsPerPage - 1) ~/ productsPerPage;
       return SafeArea(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

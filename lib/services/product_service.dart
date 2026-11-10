@@ -1,21 +1,21 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../models/pokemon.dart';
+import '../models/product.dart';
 
-class PokemonPage {
-  const PokemonPage({required this.pokemon, required this.totalCount});
+class ProductPage {
+  const ProductPage({required this.products, required this.totalCount});
 
-  final List<Pokemon> pokemon;
+  final List<Product> products;
   final int totalCount;
 }
 
-class PokemonService {
-  PokemonService({SupabaseClient? client})
+class ProductService {
+  ProductService({SupabaseClient? client})
       : _client = client ?? Supabase.instance.client;
 
   final SupabaseClient _client;
 
-  Future<PokemonPage> fetchPokemon({
+  Future<ProductPage> fetchProducts({
     required double minimumPrice,
     required double maximumPrice,
     required int page,
@@ -28,7 +28,7 @@ class PokemonService {
         .select('*')
         .gte('price', minimumPrice)
         .lte('price', maximumPrice)
-        .order('id')
+        .order('created_at', ascending: false)
         .range(start, end);
     final countResponse = await _client
         .from('products')
@@ -37,8 +37,8 @@ class PokemonService {
         .lte('price', maximumPrice)
         .count(CountOption.exact);
 
-    return PokemonPage(
-      pokemon: rows.map(Pokemon.fromProductMap).toList(),
+    return ProductPage(
+      products: rows.map(Product.fromMap).toList(),
       totalCount: countResponse.count,
     );
   }
