@@ -115,10 +115,10 @@ class PokemonNotifier extends Notifier<PokemonState> {
         page: requestedPage,
         isLoading: false,
       );
-    } catch (_) {
+    } catch (error) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Unable to load Pokémon.',
+        errorMessage: 'Unable to load Pokémon.\n$error',
       );
     }
   }

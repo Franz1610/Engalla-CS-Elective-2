@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'screens/pokemon_list_screen.dart';
 
-const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final isConfigured =
-      supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
+
+  await dotenv.load(fileName: '.env');
+  final supabaseUrl = dotenv.env['SUPABASE_URL'];
+  final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
+  final isConfigured = supabaseUrl != null &&
+      supabaseUrl.isNotEmpty &&
+      supabaseAnonKey != null &&
+      supabaseAnonKey.isNotEmpty;
+
   if (isConfigured) {
     await Supabase.initialize(
       url: supabaseUrl,
@@ -57,7 +62,7 @@ class _ConfigurationScreen extends StatelessWidget {
           padding: EdgeInsets.all(24),
           child: Text(
             'Supabase is not configured.\n\n'
-            'Run with SUPABASE_URL and SUPABASE_ANON_KEY dart-defines.',
+            'Add SUPABASE_URL and SUPABASE_ANON_KEY to the .env file.',
             textAlign: TextAlign.center,
           ),
         ),
