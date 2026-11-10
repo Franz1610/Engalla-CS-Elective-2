@@ -80,11 +80,11 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               Text(
-                '#${pokemon.id.toString().padLeft(3, '0')}',
+                'Product #${pokemon.id}',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
-              Text('Types: ${pokemon.types.join(', ').toUpperCase()}'),
+              Text('Category: ${pokemon.types.join(', ').toUpperCase()}'),
               const SizedBox(height: 8),
               Text(
                 'Price: \$${pokemon.price.toStringAsFixed(2)}',
@@ -94,7 +94,7 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
               TextField(
                 controller: _nicknameController,
                 decoration: const InputDecoration(
-                  labelText: 'Nickname',
+                  labelText: 'Personal note',
                   border: OutlineInputBorder(),
                 ),
                 textInputAction: TextInputAction.done,
@@ -114,13 +114,13 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
                         SnackBar(
                           content: Text(
                             nickname.isEmpty
-                                ? 'Nickname removed.'
-                                : 'Nickname saved.',
+                                ? 'Note removed.'
+                                : 'Note saved.',
                           ),
                         ),
                       );
                     },
-                    child: const Text('Save nickname'),
+                    child: const Text('Save note'),
                   ),
                   const SizedBox(width: 12),
                   OutlinedButton(
@@ -130,10 +130,10 @@ class _PokemonDetailScreenState extends ConsumerState<PokemonDetailScreen> {
                           .read(pokemonProvider.notifier)
                           .removeNickname(pokemon.id);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Nickname removed.')),
+                        const SnackBar(content: Text('Note removed.')),
                       );
                     },
-                    child: const Text('Remove'),
+                    child: const Text('Remove note'),
                   ),
                 ],
               ),

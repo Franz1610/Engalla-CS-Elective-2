@@ -37,7 +37,7 @@ class PokedexApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Pokedex',
+      title: 'Shop',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
@@ -56,12 +56,12 @@ class _ConfigurationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pokédex')),
+      appBar: AppBar(title: const Text('Shop')),
       body: const Center(
         child: Padding(
           padding: EdgeInsets.all(24),
           child: Text(
-            'Supabase is not configured.\n\n'
+            'Shop database is not configured.\n\n'
             'Add SUPABASE_URL and SUPABASE_ANON_KEY to the .env file.',
             textAlign: TextAlign.center,
           ),

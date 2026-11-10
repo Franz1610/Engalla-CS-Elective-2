@@ -18,7 +18,7 @@ class FavoritesPanel extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            title: const Text('Favorite Pokémon'),
+            title: const Text('Saved products'),
             trailing: IconButton(
               onPressed: notifier.toggleFavoritesPanel,
               icon: Icon(
@@ -32,7 +32,7 @@ class FavoritesPanel extends ConsumerWidget {
             if (state.favoritePokemon.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(24),
-                child: Text('No Pokémon have been favorited yet.'),
+                child: Text('No products have been saved yet.'),
               )
             else
               Flexible(
@@ -42,7 +42,7 @@ class FavoritesPanel extends ConsumerWidget {
                     ...state.favoritePokemon.map(
                       (pokemon) => ListTile(
                         leading: Image.network(pokemon.imageUrl, width: 48),
-                        title: Text(pokemon.name.toUpperCase()),
+                        title: Text(pokemon.name),
                         subtitle: Text(state.nicknames[pokemon.id] ?? ''),
                         onTap: () => onOpen(pokemon.id),
                         trailing: IconButton(

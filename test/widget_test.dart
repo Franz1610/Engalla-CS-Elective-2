@@ -11,9 +11,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_application_1/main.dart';
 
 void main() {
-  testWidgets('renders the Pokedex home screen', (WidgetTester tester) async {
+  testWidgets('renders the shop home screen', (WidgetTester tester) async {
     await tester.pumpWidget(const ProviderScope(child: PokedexApp()));
 
-    expect(find.text('Pokédex'), findsOneWidget);
+    expect(find.text('Shop'), findsOneWidget);
   });
 }

@@ -45,11 +45,11 @@ class PokemonCard extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '#${pokemon.id.toString().padLeft(3, '0')}',
+                    'Product #${pokemon.id}',
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
                   Text(
-                    pokemon.name.toUpperCase(),
+                    pokemon.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(

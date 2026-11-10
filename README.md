@@ -1,8 +1,8 @@
-# Supabase Pokedex
+# Supabase Shop
 
-This project keeps the midterm Pokedex UI and state-management features while
-loading its catalog from Supabase. It adds a price range filter and frontend
-pagination with eight Pokémon/products per page.
+This project uses the midterm Flutter structure and Riverpod state management
+to build a shop catalog backed by Supabase. It adds a price range filter and
+frontend pagination with eight products per page.
 
 ## Supabase setup
 
@@ -16,9 +16,8 @@ Create a readable `products` table with these columns:
 | `image_url` | `text` (nullable) |
 | `types` | `jsonb` (nullable) |
 
-The app also accepts the existing midterm Pokedex columns and displays a
-PokeAPI image when `image_url` is empty. Enable a SELECT policy for the
-`anon`/`authenticated` roles.
+Enable a SELECT policy for the `anon`/`authenticated` roles. Products without
+an `image_url` display a generic product image placeholder.
 
 Run the app with your Supabase project URL and publishable key:
 

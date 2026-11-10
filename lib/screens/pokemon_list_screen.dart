@@ -27,11 +27,11 @@ class _PokemonListScreenState extends ConsumerState<PokemonListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pokédex'),
+        title: const Text('Shop'),
         centerTitle: true,
         actions: [
           IconButton(
-            tooltip: 'Favorites',
+            tooltip: 'Saved products',
             onPressed: () => _showFavorites(context),
             icon: Badge(
               label: Text('${state.favoritePokemon.length}'),
@@ -40,7 +40,7 @@ class _PokemonListScreenState extends ConsumerState<PokemonListScreen> {
             ),
           ),
           IconButton(
-            tooltip: 'Refresh Pokémon',
+            tooltip: 'Refresh products',
             onPressed: state.isLoading ? null : notifier.fetchPokemon,
             icon: const Icon(Icons.refresh),
           ),
@@ -90,7 +90,7 @@ class _PokemonListScreenState extends ConsumerState<PokemonListScreen> {
             height: MediaQuery.sizeOf(context).height * 0.7,
             child: const _MessageState(
               icon: Icons.catching_pokemon,
-              message: 'No Pokémon found.',
+              message: 'No products found.',
             ),
           ),
         ],
@@ -104,7 +104,7 @@ class _PokemonListScreenState extends ConsumerState<PokemonListScreen> {
           const SliverFillRemaining(
             child: _MessageState(
               icon: Icons.filter_alt_off,
-              message: 'No Pokémon match this type.',
+              message: 'No products match this category.',
             ),
           )
         else
@@ -168,13 +168,13 @@ class _TypeFilter extends ConsumerWidget {
               key: ValueKey(state.selectedType),
               initialValue: state.selectedType,
               decoration: const InputDecoration(
-                labelText: 'Filter by type',
+                labelText: 'Filter by category',
                 border: OutlineInputBorder(),
               ),
               items: [
                 const DropdownMenuItem<String>(
                   value: null,
-                  child: Text('All types'),
+                  child: Text('All categories'),
                 ),
                 ...state.availableTypes.map(
                   (type) => DropdownMenuItem<String>(

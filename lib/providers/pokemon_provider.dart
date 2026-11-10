@@ -118,7 +118,7 @@ class PokemonNotifier extends Notifier<PokemonState> {
     } catch (error) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Unable to load Pokémon.\n$error',
+        errorMessage: 'Unable to load products.\n$error',
       );
     }
   }

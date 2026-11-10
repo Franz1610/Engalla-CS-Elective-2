@@ -40,8 +40,7 @@ class Pokemon {
     return Pokemon(
       id: id.toInt(),
       name: name,
-      imageUrl: imageUrl ??
-          'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id.toInt()}.png',
+      imageUrl: imageUrl ?? '',
       types: (map['types'] as List<dynamic>? ?? const [])
           .whereType<String>()
           .toList(),
