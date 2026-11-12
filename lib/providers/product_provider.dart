@@ -57,8 +57,7 @@ class ProductState {
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
       notes: notes ?? this.notes,
       savedIds: savedIds ?? this.savedIds,
-      isSavedPanelExpanded:
-          isSavedPanelExpanded ?? this.isSavedPanelExpanded,
+      isSavedPanelExpanded: isSavedPanelExpanded ?? this.isSavedPanelExpanded,
       page: page ?? this.page,
       totalCount: totalCount ?? this.totalCount,
       minimumPrice: minimumPrice ?? this.minimumPrice,
@@ -114,6 +113,84 @@ class ProductNotifier extends Notifier<ProductState> {
     await fetchProducts(page: 0);
   }
 
+  Future<bool> createProduct({
+    required String name,
+    required String description,
+    required double price,
+    required int stock,
+    required int categoryId,
+    String? imageUrl,
+  }) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      await service.createProduct(
+        name: name,
+        description: description,
+        price: price,
+        stock: stock,
+        categoryId: categoryId,
+        imageUrl: imageUrl,
+      );
+      await fetchProducts(page: 0);
+      return true;
+    } catch (error) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Unable to add product.\n$error',
+      );
+      return false;
+    }
+  }
+
+  Future<bool> updateProduct({
+    required int id,
+    required String name,
+    required String description,
+    required double price,
+    required int stock,
+    required int categoryId,
+    String? imageUrl,
+  }) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      await service.updateProduct(
+        id: id,
+        name: name,
+        description: description,
+        price: price,
+        stock: stock,
+        categoryId: categoryId,
+        imageUrl: imageUrl,
+      );
+      await fetchProducts(page: state.page);
+      return true;
+    } catch (error) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Unable to update product.\n$error',
+      );
+      return false;
+    }
+  }
+
+  Future<bool> deleteProduct(int id) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      await service.deleteProduct(id);
+      final nextPage = state.products.length == 1 && state.page > 0
+          ? state.page - 1
+          : state.page;
+      await fetchProducts(page: nextPage);
+      return true;
+    } catch (error) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Unable to delete product.\n$error',
+      );
+      return false;
+    }
+  }
+
   Future<void> goToPage(int page) {
     if (page < 0 || (!state.canGoNext && page > state.page)) {
       return Future.value();
@@ -145,8 +222,6 @@ class ProductNotifier extends Notifier<ProductState> {
   }
 
   void toggleSavedPanel() {
-    state = state.copyWith(
-      isSavedPanelExpanded: !state.isSavedPanelExpanded,
-    );
+    state = state.copyWith(isSavedPanelExpanded: !state.isSavedPanelExpanded);
   }
 }

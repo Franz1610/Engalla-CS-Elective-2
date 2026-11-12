@@ -11,7 +11,7 @@ class ProductPage {
 
 class ProductService {
   ProductService({SupabaseClient? client})
-      : _client = client ?? Supabase.instance.client;
+    : _client = client ?? Supabase.instance.client;
 
   final SupabaseClient _client;
 
@@ -41,6 +41,58 @@ class ProductService {
       products: rows.map(Product.fromMap).toList(),
       totalCount: countResponse.count,
     );
+  }
+
+  Future<Product> createProduct({
+    required String name,
+    required String description,
+    required double price,
+    required int stock,
+    required int categoryId,
+    String? imageUrl,
+  }) async {
+    final row = await _client
+        .from('products')
+        .insert({
+          'name': name,
+          'description': description.isEmpty ? null : description,
+          'price': price,
+          'stock': stock,
+          'category_id': categoryId,
+          'image_url': imageUrl?.isEmpty == true ? null : imageUrl,
+        })
+        .select()
+        .single();
+    return Product.fromMap(row);
+  }
+
+  Future<Product> updateProduct({
+    required int id,
+    required String name,
+    required String description,
+    required double price,
+    required int stock,
+    required int categoryId,
+    String? imageUrl,
+  }) async {
+    final row = await _client
+        .from('products')
+        .update({
+          'name': name,
+          'description': description.isEmpty ? null : description,
+          'price': price,
+          'stock': stock,
+          'category_id': categoryId,
+          'image_url': imageUrl?.isEmpty == true ? null : imageUrl,
+        })
+        .eq('id', id)
+        .select()
+        .single();
+    return Product.fromMap(row);
+  }
+
+  Future<void> deleteProduct(int id) async {
+    await _client.from('products').delete().eq('id', id);
   }
 
   void dispose() {}

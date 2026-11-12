@@ -76,9 +76,7 @@ class ProductCard extends ConsumerWidget {
             top: 2,
             right: 2,
             child: IconButton(
-              tooltip: isSaved
-                  ? 'Remove from saved products'
-                  : 'Save product',
+              tooltip: isSaved ? 'Remove from saved products' : 'Save product',
               onPressed: () =>
                   ref.read(productProvider.notifier).toggleSaved(product.id),
               icon: Icon(

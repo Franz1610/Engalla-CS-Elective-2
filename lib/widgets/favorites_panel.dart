@@ -48,8 +48,7 @@ class FavoritesPanel extends ConsumerWidget {
                         subtitle: Text(state.notes[product.id] ?? ''),
                         onTap: () => onOpen(product.id),
                         trailing: IconButton(
-                          onPressed: () =>
-                              notifier.toggleSaved(product.id),
+                          onPressed: () => notifier.toggleSaved(product.id),
                           icon: const Icon(Icons.favorite, color: Colors.red),
                         ),
                       ),

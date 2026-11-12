@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/product.dart';
 import '../providers/product_provider.dart';
 import '../widgets/favorites_panel.dart';
+import 'product_form_screen.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   const ProductDetailScreen({required this.productId, super.key});
@@ -33,9 +35,20 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(productProvider);
-    final product = state.products.firstWhere(
+    final matchingProducts = state.products.where(
       (item) => item.id == widget.productId,
     );
+    if (matchingProducts.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Product')),
+        body: Center(
+          child: state.isLoading
+              ? const CircularProgressIndicator()
+              : Text(state.errorMessage ?? 'Product is no longer available.'),
+        ),
+      );
+    }
+    final product = matchingProducts.first;
     final isSaved = state.savedIds.contains(product.id);
 
     return Scaffold(
@@ -59,6 +72,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               isSaved ? Icons.bookmark : Icons.bookmark_border,
               color: isSaved ? Colors.red : null,
             ),
+          ),
+          IconButton(
+            tooltip: 'Edit product',
+            onPressed: () => _editProduct(product),
+            icon: const Icon(Icons.edit_outlined),
+          ),
+          IconButton(
+            tooltip: 'Delete product',
+            onPressed: () => _confirmDelete(product.id),
+            icon: const Icon(Icons.delete_outline),
           ),
         ],
       ),
@@ -111,14 +134,14 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   FilledButton(
                     onPressed: () {
                       final note = _noteController.text.trim();
-                      ref.read(productProvider.notifier).setNote(product.id, note);
+                      ref
+                          .read(productProvider.notifier)
+                          .setNote(product.id, note);
                       FocusScope.of(context).unfocus();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            note.isEmpty
-                                ? 'Note removed.'
-                                : 'Note saved.',
+                            note.isEmpty ? 'Note removed.' : 'Note saved.',
                           ),
                         ),
                       );
@@ -143,6 +166,49 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _editProduct(Product product) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ProductFormScreen(product: product),
+      ),
+    );
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _confirmDelete(int productId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete product?'),
+        content: const Text('This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    final success = await ref
+        .read(productProvider.notifier)
+        .deleteProduct(productId);
+    if (!mounted) return;
+    if (success) {
+      Navigator.of(context).pop();
+    } else {
+      final error = ref.read(productProvider).errorMessage;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error ?? 'Unable to delete product.')),
+      );
+    }
   }
 
   void _showSavedProducts(BuildContext context) {

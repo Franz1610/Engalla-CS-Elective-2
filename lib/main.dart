@@ -11,7 +11,8 @@ Future<void> main() async {
   await dotenv.load(fileName: '.env');
   final supabaseUrl = dotenv.env['SUPABASE_URL'];
   final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
-  final isConfigured = supabaseUrl != null &&
+  final isConfigured =
+      supabaseUrl != null &&
       supabaseUrl.isNotEmpty &&
       supabaseAnonKey != null &&
       supabaseAnonKey.isNotEmpty;
@@ -22,11 +23,7 @@ Future<void> main() async {
       publishableKey: supabaseAnonKey,
     );
   }
-  runApp(
-    ProviderScope(
-      child: ShopApp(isConfigured: isConfigured),
-    ),
-  );
+  runApp(ProviderScope(child: ShopApp(isConfigured: isConfigured)));
 }
 
 class ShopApp extends StatelessWidget {
@@ -43,9 +40,7 @@ class ShopApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: isConfigured
-          ? const ShopScreen()
-          : const _ConfigurationScreen(),
+      home: isConfigured ? const ShopScreen() : const _ConfigurationScreen(),
     );
   }
 }
