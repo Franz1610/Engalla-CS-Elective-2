@@ -62,6 +62,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.product != null;
+    final errorMessage = ref.watch(productProvider).errorMessage;
     return Scaffold(
       appBar: AppBar(title: Text(isEditing ? 'Edit product' : 'Add product')),
       body: Form(
@@ -69,6 +70,13 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
+            if (errorMessage != null) ...[
+              Text(
+                errorMessage,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              const SizedBox(height: 16),
+            ],
             _textField(_nameController, 'Name'),
             _textField(_descriptionController, 'Description', maxLines: 3),
             _textField(

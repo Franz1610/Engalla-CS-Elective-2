@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'screens/auth_screen.dart';
 import 'screens/shop_screen.dart';
 
 Future<void> main() async {
@@ -23,13 +24,22 @@ Future<void> main() async {
       publishableKey: supabaseAnonKey,
     );
   }
-  runApp(ProviderScope(child: ShopApp(isConfigured: isConfigured)));
+  runApp(
+    ProviderScope(
+      child: ShopApp(isConfigured: isConfigured, requireAuth: isConfigured),
+    ),
+  );
 }
 
 class ShopApp extends StatelessWidget {
-  const ShopApp({this.isConfigured = true, super.key});
+  const ShopApp({
+    this.isConfigured = true,
+    this.requireAuth = false,
+    super.key,
+  });
 
   final bool isConfigured;
+  final bool requireAuth;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +50,27 @@ class ShopApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: isConfigured ? const ShopScreen() : const _ConfigurationScreen(),
+      home: !isConfigured
+          ? const _ConfigurationScreen()
+          : requireAuth
+          ? const _AuthGate()
+          : const ShopScreen(),
+    );
+  }
+}
+
+class _AuthGate extends StatelessWidget {
+  const _AuthGate();
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = Supabase.instance.client.auth;
+    return StreamBuilder<AuthState>(
+      stream: auth.onAuthStateChange,
+      builder: (context, snapshot) {
+        final session = snapshot.data?.session ?? auth.currentSession;
+        return session == null ? const AuthScreen() : const ShopScreen();
+      },
     );
   }
 }

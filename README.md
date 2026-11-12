@@ -3,6 +3,7 @@
 This project uses the midterm Flutter structure and Riverpod state management
 to build a shop catalog backed by Supabase. It adds a price range filter,
 frontend pagination with eight products per page, and product CRUD operations.
+The app also requires GitHub authentication before the shop can be accessed.
 
 ## Supabase setup
 
@@ -24,6 +25,17 @@ Enable SELECT, INSERT, UPDATE, and DELETE policies for the `anon`/`authenticated
 roles. Products without an `image_url` display a generic product image
 placeholder.
 
+## GitHub authentication setup
+
+In Supabase, open **Authentication > Providers > GitHub** and enable GitHub.
+Create a GitHub OAuth App and set its authorization callback URL to the
+Supabase callback URL displayed in the provider settings. Add the GitHub client
+ID and client secret to Supabase.
+
+In **Authentication > URL Configuration**, add the URL used by the app, for
+example `http://localhost:3000` when running Flutter Web. The app uses the
+current browser origin as the OAuth redirect URL.
+
 Put your local credentials in `.env`:
 
 ```env
@@ -32,6 +44,9 @@ SUPABASE_ANON_KEY=your-publishable-key
 ```
 
 Run the app with `flutter run -d chrome`.
+
+The login screen provides a **Continue with GitHub** button. After a successful
+login, the shop is displayed; the logout button returns to the login screen.
 
 The Supabase query applies `gte`/`lte` price filters and `.range(...)`
 pagination. The Add product button inserts a row, while the Edit and Delete

@@ -5,7 +5,7 @@ import '../services/product_service.dart';
 
 const productsPerPage = 8;
 const minimumProductPrice = 0.0;
-const maximumProductPrice = 1000.0;
+const maximumProductPrice = 10000.0;
 
 class ProductState {
   const ProductState({

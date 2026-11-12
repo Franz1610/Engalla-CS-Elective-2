@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../providers/product_provider.dart';
 import '../widgets/product_card.dart';
@@ -44,6 +45,11 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             tooltip: 'Refresh products',
             onPressed: state.isLoading ? null : notifier.fetchProducts,
             icon: const Icon(Icons.refresh),
+          ),
+          IconButton(
+            tooltip: 'Sign out',
+            onPressed: () => Supabase.instance.client.auth.signOut(),
+            icon: const Icon(Icons.logout),
           ),
         ],
       ),
